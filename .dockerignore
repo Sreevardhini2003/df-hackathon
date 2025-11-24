@@ -1,0 +1,36 @@
+
+# Python cache
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Environment files
+.env
+*.env
+
+# Virtual environments
+venv/
+.env/
+*.egg-info/
+
+# Docker-related
+Dockerfile
+docker-compose.yml
+
+# Node / Frontend (if present)
+node_modules/
+dist/
+build/
+
+# Version control
+.git/
+.gitignore
+.vscode/
+
+# Large data files
+uploads/
+*.csv
+*.xlsx
+*.zip
+*.tar.gz
