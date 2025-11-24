@@ -1,0 +1,30 @@
+
+services:
+  db:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    environment:
+      ACCEPT_EULA: "Y"
+      SA_PASSWORD: "YourStrong!Passw0rd"      # override in Azure App Settings
+      MSSQL_PID: "Developer"
+    volumes:
+      - /home/sql_data:/var/opt/mssql         # persisted in Azure Web App for Linux
+    restart: always
+    # If you get permission errors on /var/opt/mssql in Azure, uncomment:
+    # user: "0"   # run as root (acceptable for hackathon/dev in App Service)
+
+  webapp:
+    image: sreevardhini2003/hackathon-webapp:v1   # Docker Hub image
+    depends_on:
+      - db
+    environment:
+      DB_SERVER: db
+      DB_PORT: "1433"
+      DB_NAME: HackathonDB
+      DB_USER: sa
+      DB_PASSWORD: "YourStrong!Passw0rd"          # override in Azure App Settings
+      DB_DRIVER: "ODBC Driver 18 for SQL Server"
+      UPLOAD_DIR: "/home/uploads"
+      WEBSITES_PORT: "80"                         # required by Azure routing
+    volumes:
+      - /home/uploads:/home/uploads
+    restart: always
