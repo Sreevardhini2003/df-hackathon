@@ -1,0 +1,44 @@
+
+name: Deploy Docker Compose to Azure Web App
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+env:
+  RESOURCE_GROUP: df-expense-rg
+  WEBAPP_NAME: df-expense-reimbursement-system
+  COMPOSE_FILE_PATH: docker-compose.yml
+  LOCATION: eastasia
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Azure login
+        uses: azure/login@v2
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+      - name: Configure App Settings
+        run: |
+          az webapp config appsettings set \
+            -g "$RESOURCE_GROUP" -n "$WEBAPP_NAME" \
+            --settings SA_PASSWORD=${{ secrets.SA_PASSWORD }} DB_PASSWORD=${{ secrets.DB_PASSWORD }} WEBSITES_PORT=80
+
+      - name: Configure Docker Compose
+        run: |
+          az webapp config container set \
+            -g "$RESOURCE_GROUP" -n "$WEBAPP_NAME" \
+            --multicontainer-config-type compose \
+            --multicontainer-config-file "$COMPOSE_FILE_PATH"
+
+      - name: Restart Web App
+        run: |
+          az webapp restart -g "$RESOURCE_GROUP" -n "$WEBAPP_NAME"
